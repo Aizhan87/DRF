@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, generics
@@ -23,11 +24,17 @@ class CategoryView(generics.ListCreateAPIView):
     permission_classes = [IsAdminUser]
 
 
-class MenuItemView(generics.ListCreateAPIView):
+class MenuItemView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
 
     def get_permissions(self):
-        if self.request.method == "GET":
-            return []
-        return super().get_permissions()
+        permission_classes = [IsAuthenticated]
+        if self.request.method == 'PATCH':
+            permission_classes = [IsAuthenticated, IsAdminUser]
+        if self.request.method == "DELETE":
+            permission_classes = [IsAuthenticated, IsAdminUser]
+        return[permission() for permission in permission_classes]
+
+    
+# admin = dbcd5c252275d41c4baa5759523c7fed081c983d
