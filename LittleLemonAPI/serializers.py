@@ -2,6 +2,7 @@ from rest_framework import serializers, generics
 from .models import MenuItem
 from .models import Category
 from decimal import Decimal
+from django.contrib.auth.models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -18,3 +19,8 @@ class MenuItemSerializer(serializers.ModelSerializer):
         model = MenuItem
         fields = ['id', 'title', 'price',
                   'featured', 'category', 'category_id']
+
+class ManagerListSerializer(serializers.ModelSerializer):
+    class Meta():
+        model = User
+        fields = ['id','username','email']
