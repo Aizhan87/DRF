@@ -6,4 +6,5 @@ urlpatterns = [
     path('menu-items/category', views.CategoryView.as_view()),
     path('menu-items/<int:pk>', views.MenuItemView.as_view()),
     path('groups/manager/users', views.ManagerListView.as_view()),
+    path('groups/manager/users/<int:pk>', views.ManagerDeleteView.as_view()),
 ]

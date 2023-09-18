@@ -43,7 +43,7 @@ class ManagerListView(generics.ListCreateAPIView):
     serializer_class = ManagerListSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         username = request.data['username']
         if username:
             user = get_object_or_404(User, username=username)
@@ -51,8 +51,21 @@ class ManagerListView(generics.ListCreateAPIView):
             managers.user_set.add(user)
             return JsonResponse(status=201, data={'message':'User added to Managers group'}) 
 
+class ManagerDeleteView(generics.DestroyAPIView):
+    queryset = User.objects.filter(groups__name='Manager')
+    serializer_class = ManagerListSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    
+    def delete(self, request, *args, **kwargs):
+        pk = self.kwargs['pk']
+        user = get_object_or_404(User, pk=pk)
+        managers = Group.objects.get(name='Manager')
+        managers.user_set.remove(user)
+        return JsonResponse(status=200, data={'message': 'User is removed from Manager group'})
+        
     
     
 
     
 # admin = dbcd5c252275d41c4baa5759523c7fed081c983d
+# janedoe = b5181c578adb5d3b89e49764cfa1885f45ae252b
