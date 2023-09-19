@@ -8,4 +8,5 @@ urlpatterns = [
     path('groups/manager/users', views.ManagerListView.as_view()),
     path('groups/manager/users/<int:pk>', views.ManagerDeleteView.as_view()),
     path('groups/delivery-crew/users', views.DeliveryCrewListView.as_view()),
+    path('groups/delivery-crew/users/<int:pk>', views.DeliveryCrewDeleteView.as_view()),
 ]
