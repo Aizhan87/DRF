@@ -23,6 +23,8 @@ class Cart(models.Model):
 
     class Meta:
         unique_together = ('menuitem', 'user')
+    def __str__(self):
+        return self.user
 
 
 class Order(models.Model):
