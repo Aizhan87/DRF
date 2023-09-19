@@ -62,6 +62,19 @@ class ManagerDeleteView(generics.DestroyAPIView):
         managers = Group.objects.get(name='Manager')
         managers.user_set.remove(user)
         return JsonResponse(status=200, data={'message': 'User is removed from Manager group'})
+    
+class DeliveryCrewListView(generics.ListCreateAPIView):
+    queryset = User.objects.filter(groups__name='Delivery Crew')
+    serializer_class = ManagerListSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    
+    def post(self, request):
+        username = request.data['username']
+        if username:
+            user = get_object_or_404(User, username=username)
+            delivery_crew = Group.objects.get(name='Delivery Crew')
+            delivery_crew.user_set.add(user)
+            return JsonResponse(status=201, data={'message': 'User added to Delivery Crew group'})
         
     
     
