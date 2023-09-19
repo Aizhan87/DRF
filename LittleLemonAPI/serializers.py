@@ -23,22 +23,12 @@ class ManagerListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id','username','email']
-        
-class CartHelpSerializer(serializers.ModelSerializer):
-    class Meta():
-        model = MenuItem
-        fields = ['id','title','price']
 
 class CartSerializer(serializers.ModelSerializer):
-    menuitem = CartHelpSerializer()
-    class Meta():
+    menuitem = MenuItemSerializer
+    class Meta:
         model = Cart
-        fields = ['menuitem','quantity','price']
-        
-class CartAddSerializer(serializers.ModelSerializer):
-    class Meta():
-        model = Cart
-        fields = ['menuitem','quantity']
+        fields = ['menuitem','quantity', 'price', 'unit_price']
         extra_kwargs = {
             'quantity': {'min_value': 1},
         }

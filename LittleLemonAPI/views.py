@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import MenuItem, Category, Cart
-from .serializers import MenuItemSerializer, CategorySerializer, ManagerListSerializer, CartSerializer, CartAddSerializer
+from .serializers import MenuItemSerializer, CategorySerializer, ManagerListSerializer, CartSerializer
 
 
 class MenuItems(generics.ListCreateAPIView):
@@ -92,16 +92,41 @@ class DeliveryCrewDeleteView(generics.DestroyAPIView):
         return JsonResponse(status=200, data={'message': 'User is removed from Delivery Crew group'})
 
 
+# class CartListView(generics.ListCreateAPIView):
+#     serializer_class = CartSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         queryset = Cart.objects.filter(user=self.request.user)
+#         return queryset
+
+#     def post(self, request, *arg, **kwargs):
+#         serialized_item = CartAddSerializer(data=request.data)
+#         serialized_item.is_valid(raise_exception=True)
+#         id = request.data['menuitem']
+#         quantity = request.data['quantity']
+#         item = get_object_or_404(MenuItem, id=id)
+#         price = int(quantity) * item.price
+#         try:
+#             Cart.objects.create(user=request.user, quantity=quantity, unit_price=item.price, price=price, menuitem_id=id)
+#         except:
+#             return JsonResponse(status=409, data={'This item is already in the cart'})
+#         return JsonResponse(status=201, data={'message': 'item added to the cart'})
+
 class CartListView(generics.ListCreateAPIView):
+    queryset = Cart.objects.all()
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Cart.objects.filter(user=self.request.user)
-        return queryset
+        return Cart.objects.filter(user=self.request.user)
 
+    def delete(self, request, *args, **kwargs):
+        Cart.objects.all().filter(user=self.request.user).delete()
+        return Response("All menu items for current user are deleted")
+    
     def post(self, request, *arg, **kwargs):
-        serialized_item = CartAddSerializer(data=request.data)
+        serialized_item = CartSerializer(data=request.data)
         serialized_item.is_valid(raise_exception=True)
         id = request.data['menuitem']
         quantity = request.data['quantity']
@@ -111,7 +136,7 @@ class CartListView(generics.ListCreateAPIView):
             Cart.objects.create(user=request.user, quantity=quantity, unit_price=item.price, price=price, menuitem_id=id)
         except:
             return JsonResponse(status=409, data={'This item is already in the cart'})
-        return JsonResponse(status=201, data={'message': 'item added to the cart'})
+        return Response('Item added to the cart')
         
         
 
