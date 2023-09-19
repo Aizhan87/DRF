@@ -132,10 +132,7 @@ class CartListView(generics.ListCreateAPIView):
         quantity = request.data['quantity']
         item = get_object_or_404(MenuItem, id=id)
         price = int(quantity) * item.price
-        try:
-            Cart.objects.create(user=request.user, quantity=quantity, unit_price=item.price, price=price, menuitem_id=id)
-        except:
-            return JsonResponse(status=409, data={'This item is already in the cart'})
+        Cart.objects.create(user=request.user, quantity=quantity, unit_price=item.price, price=price, menuitem_id=id)
         return Response('Item added to the cart')
         
         
