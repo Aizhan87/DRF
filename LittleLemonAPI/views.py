@@ -140,15 +140,15 @@ class OrderListView(generics.ListCreateAPIView):
         if len(values) == 0:
             return HttpResponseBadRequest()
         total = math.fsum([float(value[-1]) for value in values])
-        order = Order.objects.create(user=request.user, status=False, total=total, date=date.today())
         try:
+            order = Order.objects.create(user=request.user, status=False, total=total, date=date.today())
             for i in cart.values():
                 menuitem = get_object_or_404(MenuItem, id=i['menuitem_id'])
                 orderitem = OrderItem.objects.create(order=self.request.user, menuitem=menuitem, quantity=i['quantity'])
                 orderitem.save()
             cart.delete()
         except:
-            return Response('Order already been placed!')
+            return Response('Your order has been placed! Your order number is {}'.format(str(order.id)))
         return Response('Your order has been placed! Your order number is {}'.format(str(order.id)))
             
 
@@ -160,10 +160,25 @@ class SingleOrderView(generics.ListCreateAPIView):
         if self.request.user == order.user and self.request.method == 'GET':
             permission_classes = [IsAuthenticated]
         elif self.request.method == 'PUT' or self.request.method == 'DELETE':
-            permission_classes = [IsAuthenticated, IsManager or IsAdminUser]
+            permission_classes = [IsAuthenticated, IsManager | IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated, IsDeliveryCrew | IsManager | IsAdminUser]
+        return[permission() for permission in permission_classes] 
+
+    def get_queryset(self, *args, **kwargs):
+            query = OrderItem.objects.filter(order_id=self.kwargs['pk'])
+            return query
+        
+    def delete(self, request, *args, **kwargs):
+        order = Order.objects.get(pk=self.kwargs['pk'])
+        order_number = str(order.id)
+        order.delete()
+        return JsonResponse(status=200, data={'message':'Order #{} was deleted'.format(order_number)})
         
 
 
 # admin = dbcd5c252275d41c4baa5759523c7fed081c983d
-# janedoe = b5181c578adb5d3b89e49764cfa1885f45ae252b
-# jimmydoe = caaba0f4d44d071312e0cf276de32fa455c94ca5
+# janedoe = b5181c578adb5d3b89e49764cfa1885f45ae252b --> delivery crew
+# jimmydoe = caaba0f4d44d071312e0cf276de32fa455c94ca5 --> customer
+# admin_1 = 3bb70e788ebb18ce1de6638f9e85bfa7a2fa4645  --> manager
+# johndoe = d93c4c2f2ecfa3a75c5f89aad2f9253a47babf1f  --> manager
