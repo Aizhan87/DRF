@@ -1,6 +1,6 @@
 from rest_framework import serializers, generics
 from .models import MenuItem
-from .models import Category, Cart
+from .models import Category, Cart, Order, OrderItem
 from decimal import Decimal
 from django.contrib.auth.models import User
 
@@ -32,3 +32,20 @@ class CartSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'quantity': {'min_value': 1},
         }
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username']
+
+class OrderSerializer(serializers.ModelSerializer):
+    user = UserSerializer
+    class Meta:
+        model = Order
+        fields = ['id','user','total','status','delivery_crew','date']
+        
+class SingleOrderSerializer(serializers.ModelSerializer):
+    menuitem = MenuItem
+    class Meta:
+        model = OrderItem
+        fields = ['menuitem','quantity']
